@@ -16,7 +16,7 @@ This project connects:
 
 - 楽天RSS (MarketSpeed RSS)
 - Excel (RSS data inside cells)
-- VSTO Excel Add-in (C#)
+- Excel XLL Add-in (C#)
 - Built-in WebSocket Server
 - Python / vn.py WebSocket Client
 
@@ -30,35 +30,36 @@ This project connects:
 See folder tree.
 
 ## Build
-1. Visual Studio → Create VSTO Excel Add-in (.NET Framework 4.8)
+1. Visual Studio → Class Library(.NET Framework) Add-in (.NET Framework 4.8)
 2. Install NuGet:
-    - Fleck
+    - ExcelDna.AddIn
     - Newtonsoft.Json
+
+## Release
+Put build files into Microsoft Addin directory
+C:\Users\YourName\AppData\Roaming\Microsoft\AddIns
+- RakutenRssVnpyAddIn-AddIn64.xll
+- RakutenRssVnpyAddIn-AddIn64.dna
+- RakutenRssVnpyAddIn.dll
+- Newtonsoft.Json.dll
 
 ## Run
 1. Start Excel (with this add-in installed)
-2. WebSocket server auto-starts on port 18080
+2. WebSocket server auto-starts on port 8765
 3. Run Python client:
 
 
 ExcelAddin-RakutenRSS-WebSocket/
 ├── README.md
-├── ExcelAddin/
-│   ├── ExcelAddin.csproj
-│   ├── ThisAddin.cs
-│   ├── ExcelAddin.vsto
-│   ├── Models/
-│   │   └── OptionQuote.cs
-│   ├── Services/
-│   │   ├── RssReader.cs
-│   │   └── OptionMonitor.cs
-│   ├── WebSocket/
-│   │   └── WsServer.cs
-│   ├── Utils/
-│   │   └── Logger.cs
-│   └── Properties/
-│       ├── AssemblyInfo.cs
-│       └── Resources.resx
-└── PythonClient/
-    ├── client.py
-    └── requirements.txt
+├── RakutenRssVnpyAddIn
+│   ├── RakutenRssVnpyAddIn.csproj
+│   ├── RakutenRssVnpyAddIn.slnx
+│   ├── RakutenRssVnpyAddIn-AddIn.dna
+│   ├── AddinMain.cs
+│   ├── JsonModels.cs
+│   ├── OptionSheetReader.cs
+│   ├── WebSocketServer.cs
+│   ├──Properties
+│   │   ├──AssemblyInfo.cs
+│   │   ├──ExcelDna.Build.props
+└── client.py
