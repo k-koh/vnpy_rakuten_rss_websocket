@@ -63,7 +63,7 @@ public class WebSocketServer
                                  WebSocketMessageType.Text,
                                  true,
                                  CancellationToken.None);
-                    AddinMain.Log($"[WebSocketServer] Sent data to client: {msg}");
+                    //AddinMain.Log($"[WebSocketServer] Sent data to client: {msg}");
                 }
             }
         }

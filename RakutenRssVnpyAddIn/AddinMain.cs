@@ -10,6 +10,7 @@ using ExcelDna.Integration;
 public class AddinMain : IExcelAddIn
 {
     private WebSocketServer _ws;
+    private RestApiServer _restApiServer;
     private Thread _readLoopThread;
     private static readonly string LogFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addin.log");
 
@@ -18,6 +19,10 @@ public class AddinMain : IExcelAddIn
         _ws = new WebSocketServer("http://localhost:8765/ws/");
         _ws.Start();
         Log("[AddinMain] WebSocketServer started.");
+
+        _restApiServer = new RestApiServer("http://localhost:8766/");
+        _restApiServer.Start();
+        Log("[AddinMain] RestApiServer started.");
 
         _readLoopThread = new Thread(ReadLoop);
         _readLoopThread.IsBackground = true;
@@ -29,6 +34,8 @@ public class AddinMain : IExcelAddIn
     {
         _ws?.Stop();
         Log("[AddinMain] WebSocketServer stopped.");
+        _restApiServer?.Stop();
+        Log("[AddinMain] RestApiServer stopped.");
     }
 
     private void ReadLoop()
@@ -42,6 +49,12 @@ public class AddinMain : IExcelAddIn
                 {
                     try
                     {
+                        var contracts = OptionSheetReader.ReadOptionContracts();
+                        foreach (var kvp in contracts)
+                        {
+                            RestApiServer.OptionContracts[kvp.Key] = kvp.Value;
+                        }
+                        
                         var rows = OptionSheetReader.ReadOptionRows();
                         foreach (var row in rows)
                         {

@@ -11,27 +11,119 @@ public static class OptionSheetReader
     public static List<OptionRow> ReadOptionRows()
     {
         List<OptionRow> list = new List<OptionRow>();
+        string sheet = "設定";
+        // Call data: AN~BF (columns 40~58), Put data: BH~BZ (columns 60~78)
+        // We'll use Excel column letters for mapping
+        string[] callCols = { "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF" };
+        string[] putCols  = { "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO", "BP", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BX", "BY", "BZ" };
 
-        for (int row = 7; row <= 87; row++)
+        for (int row = 12; row <= 174; row++)
         {
-            string sheet = "現在値";
-
-            var obj = new OptionRow()
+            // --- Call data ---
+            var callSymbol = Get(sheet, callCols[0], row);
+            if (!string.IsNullOrWhiteSpace(callSymbol))
             {
-                RowIndex = row,
-                CallIV = Get(sheet, "G", row),
-                CallDelta = Get(sheet, "H", row),
-                CallGamma = Get(sheet, "I", row),
-                CallTheta = Get(sheet, "J", row),
-                CallVega = Get(sheet, "K", row),
-                CallPrice = Get(sheet, "L", row),
-                CallMonth = Get(sheet, "M", row),
-                CallStrike = Get(sheet, "N", row),
-            };
-
-            list.Add(obj);
+                var obj = new OptionRow
+                {
+                    Symbol = callSymbol,
+                    SymbolName = Get(sheet, callCols[1], row),
+                    TradingUnit = Get(sheet, callCols[2], row),
+                    DerivMonth = Get(sheet, callCols[3], row),
+                    PutOrCall = Get(sheet, callCols[4], row),
+                    StrikePrice = Get(sheet, callCols[5], row),
+                    TradeStart = Get(sheet, callCols[6], row),
+                    TradeEnd = Get(sheet, callCols[7], row),
+                    Sell1_Price = Get(sheet, callCols[8], row),
+                    Sell1_Qty = Get(sheet, callCols[9], row),
+                    Buy1_Price = Get(sheet, callCols[10], row),
+                    Buy1_Qty = Get(sheet, callCols[11], row),
+                    CurrentPrice = Get(sheet, callCols[12], row),
+                    TradingVolume = Get(sheet, callCols[13], row),
+                    TradingValue = Get(sheet, callCols[14], row),
+                    OpeningPrice = Get(sheet, callCols[15], row),
+                    HighPrice = Get(sheet, callCols[16], row),
+                    LowPrice = Get(sheet, callCols[17], row),
+                    PreviousClose = Get(sheet, callCols[18], row)
+                };
+                list.Add(obj);
+            }
+            // --- Put data ---
+            var putSymbol = Get(sheet, putCols[0], row);
+            if (!string.IsNullOrWhiteSpace(putSymbol))
+            {
+                var obj = new OptionRow
+                {
+                    Symbol = putSymbol,
+                    SymbolName = Get(sheet, putCols[1], row),
+                    TradingUnit = Get(sheet, putCols[2], row),
+                    DerivMonth = Get(sheet, putCols[3], row),
+                    PutOrCall = Get(sheet, putCols[4], row),
+                    StrikePrice = Get(sheet, putCols[5], row),
+                    TradeStart = Get(sheet, putCols[6], row),
+                    TradeEnd = Get(sheet, putCols[7], row),
+                    Sell1_Price = Get(sheet, putCols[8], row),
+                    Sell1_Qty = Get(sheet, putCols[9], row),
+                    Buy1_Price = Get(sheet, putCols[10], row),
+                    Buy1_Qty = Get(sheet, putCols[11], row),
+                    CurrentPrice = Get(sheet, putCols[12], row),
+                    TradingVolume = Get(sheet, putCols[13], row),
+                    TradingValue = Get(sheet, putCols[14], row),
+                    OpeningPrice = Get(sheet, putCols[15], row),
+                    HighPrice = Get(sheet, putCols[16], row),
+                    LowPrice = Get(sheet, putCols[17], row),
+                    PreviousClose = Get(sheet, putCols[18], row)
+                };
+                list.Add(obj);
+            }
         }
         return list;
+    }
+
+    public static Dictionary<string, OptionContract> ReadOptionContracts()
+    {
+        Dictionary<string, OptionContract> contracts = new Dictionary<string, OptionContract>();
+        string sheet = "設定";
+        string[] callCols = { "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU" };
+        string[] putCols = { "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO" };
+
+        for (int row = 12; row <= 174; row++)
+        {
+            // --- Call data ---
+            var callSymbol = Get(sheet, callCols[0], row);
+            if (!string.IsNullOrWhiteSpace(callSymbol))
+            {
+                var contract = new OptionContract
+                {
+                    Symbol = callSymbol,
+                    SymbolName = Get(sheet, callCols[1], row),
+                    TradingUnit = Get(sheet, callCols[2], row),
+                    DerivMonth = Get(sheet, callCols[3], row),
+                    PutOrCall = Get(sheet, callCols[4], row),
+                    StrikePrice = Get(sheet, callCols[5], row),
+                    TradeStart = Get(sheet, callCols[6], row),
+                    TradeEnd = Get(sheet, callCols[7], row)
+                };
+                contracts[callSymbol] = contract;
+            }
+            // --- Put data ---
+            var putSymbol = Get(sheet, putCols[0], row);
+            if (!string.IsNullOrWhiteSpace(putSymbol))
+            {
+                var contract = new OptionContract
+                {
+                    Symbol = putSymbol,
+                    SymbolName = Get(sheet, putCols[1], row),
+                    TradingUnit = Get(sheet, putCols[2], row),
+                    DerivMonth = Get(sheet, putCols[3], row),
+                    PutOrCall = Get(sheet, putCols[4], row),
+                    StrikePrice = Get(sheet, putCols[5], row),
+                    TradeStart = Get(sheet, putCols[6], row),
+                    TradeEnd = Get(sheet, putCols[7], row)
+                };
+                contracts[putSymbol] = contract;
+            }
+        }
+        return contracts;
     }
 
     private static string Get(string sheet, string col, int row)

@@ -43,6 +43,10 @@ C:\Users\YourName\AppData\Roaming\Microsoft\AddIns
 - RakutenRssVnpyAddIn.dll
 - Newtonsoft.Json.dll
 
+## Register Add-in in Excel
+1. File -> Options -> Add-ins -> Setting 
+2. Check the RakutenRssVnpyAddIn
+
 ## Run
 1. Start Excel (with this add-in installed)
 2. WebSocket server auto-starts on port 8765
