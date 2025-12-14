@@ -55,6 +55,7 @@ public class WebSocketServer
 
         lock (_clients)
         {
+            int clientIndex = 0;
             foreach (var ws in _clients.ToArray())
             {
                 if (ws.State == WebSocketState.Open)
@@ -63,8 +64,9 @@ public class WebSocketServer
                                  WebSocketMessageType.Text,
                                  true,
                                  CancellationToken.None);
-                    //AddinMain.Log($"[WebSocketServer] Sent data to client: {msg}");
+                    //AddinMain.Log($"[WebSocketServer] Sent data to client #{clientIndex} (State: {ws.State}, SubProtocol: {ws.SubProtocol ?? "none"}): {msg}");
                 }
+                clientIndex++;
             }
         }
     }

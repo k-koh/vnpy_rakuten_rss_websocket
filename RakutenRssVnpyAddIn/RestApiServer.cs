@@ -14,6 +14,7 @@ public class RestApiServer
     private static readonly string LogFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addin.log");
     public static List<string> RegisteredSymbols { get; } = new List<string>();
     public static Dictionary<string, OptionContract> OptionContracts { get; } = new Dictionary<string, OptionContract>();
+    public static Dictionary<string, string> SymbolNames { get; } = new Dictionary<string, string>();
 
     public RestApiServer(string prefix)
     {
@@ -61,16 +62,24 @@ public class RestApiServer
         Log($"[RestApiServer] {method} {path}");
         string response = "";
         int statusCode = 200;
-
+        /////////////////////////////////////////////////////
+        // Token 取得API
+        /////////////////////////////////////////////////////
         if (path == "/rakutenapi/token" && method == "POST")
         {
             response = "{\"Token\":\"dummy-token\",\"ResultCode\":0}";
         }
+        /////////////////////////////////////////////////////
+        // 登録済みシンボル受信リスト全解除API
+        /////////////////////////////////////////////////////
         else if (path == "/rakutenapi/unregister/all" && method == "PUT")
         {
             RegisteredSymbols.Clear();
             response = "{\"result\":\"all unregistered\"}";
         }
+        /////////////////////////////////////////////////////
+        // シンボルWebsocket受信リスト登録API
+        /////////////////////////////////////////////////////
         else if (path == "/rakutenapi/register" && method == "PUT")
         {
             try
@@ -102,6 +111,9 @@ public class RestApiServer
                 response = $"{{\"error\":\"exception\",\"message\":\"{ex.Message}\"}}";
             }
         }
+        /////////////////////////////////////////////////////
+        // オプション銘柄情報取得API
+        /////////////////////////////////////////////////////
         else if (path.StartsWith("/rakutenapi/symbol/") && method == "GET")
         {
             string symbol = path.Substring("/rakutenapi/symbol/".Length);
@@ -112,7 +124,25 @@ public class RestApiServer
             else
             {
                 statusCode = 404;
-                response = "{\"error\":\"symbol not found\"}";
+                response = "{\"Code\":4002001,\"Message\":\"symbol not found\"}";
+            }
+        }
+        /////////////////////////////////////////////////////
+        // オプション銘柄名からシンボル取得API
+        /////////////////////////////////////////////////////
+        else if (path.StartsWith("/rakutenapi/symbolname/") && method == "GET")
+        {
+            //name e.g.: 26-01-C-38000
+            string name = path.Substring("/rakutenapi/symbolname/".Length);
+            if (SymbolNames.ContainsKey(name))
+            {
+                var symbolResponse = new { Symbol = SymbolNames[name] };
+                response = JsonConvert.SerializeObject(symbolResponse);
+            }
+            else
+            {
+                statusCode = 404;
+                response = "{\"Code\":4002001,\"Message\":\"symbolname not found\"}";
             }
         }
         else

@@ -27,7 +27,7 @@ public class AddinMain : IExcelAddIn
         _readLoopThread = new Thread(ReadLoop);
         _readLoopThread.IsBackground = true;
         _readLoopThread.Start();
-        Log("[AddinMain] WebSocketServer ReadLoop start.");
+        Log("[AddinMain] readLoopThread started.");
     }
 
     public void AutoClose()
@@ -49,6 +49,11 @@ public class AddinMain : IExcelAddIn
                 {
                     try
                     {
+                        var symbolNames = OptionSheetReader.ReadSymbolNames();
+                        foreach (var kvp in symbolNames)
+                        {
+                            RestApiServer.SymbolNames[kvp.Key] = kvp.Value;
+                        }
                         var contracts = OptionSheetReader.ReadOptionContracts();
                         foreach (var kvp in contracts)
                         {
@@ -58,9 +63,12 @@ public class AddinMain : IExcelAddIn
                         var rows = OptionSheetReader.ReadOptionRows();
                         foreach (var row in rows)
                         {
-                            string json = row.ToJson();
-                            _ws.Broadcast(json);
-                            //Log($"[AddinMain] Broadcasted: {json}");
+                            if (RestApiServer.RegisteredSymbols.Contains(row.Symbol))
+                            {
+                                string json = row.ToJson();
+                                _ws.Broadcast(json);
+                                //Log($"[AddinMain] Broadcasted: {json}");
+                            }
                         }
                     }
                     catch (Exception ex)

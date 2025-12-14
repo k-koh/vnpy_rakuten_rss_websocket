@@ -1,9 +1,10 @@
 ﻿using ExcelDna.Integration;
+using Microsoft.Office.Interop.Excel;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 using Excel = Microsoft.Office.Interop.Excel;
-using Microsoft.Office.Interop.Excel;
 //using ExcelDna.Util;
 
 public static class OptionSheetReader
@@ -17,7 +18,7 @@ public static class OptionSheetReader
         string[] callCols = { "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF" };
         string[] putCols  = { "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO", "BP", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BX", "BY", "BZ" };
 
-        for (int row = 12; row <= 174; row++)
+        for (int row = 10; row <= 174; row++)
         {
             // --- Call data ---
             var callSymbol = Get(sheet, callCols[0], row);
@@ -86,7 +87,7 @@ public static class OptionSheetReader
         string[] callCols = { "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU" };
         string[] putCols = { "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO" };
 
-        for (int row = 12; row <= 174; row++)
+        for (int row = 10; row <= 174; row++)
         {
             // --- Call data ---
             var callSymbol = Get(sheet, callCols[0], row);
@@ -126,6 +127,41 @@ public static class OptionSheetReader
         return contracts;
     }
 
+
+    public static Dictionary<string, string> ReadSymbolNames()
+    {
+        Dictionary<string, string> names = new Dictionary<string, string>();
+        string sheet = "設定";
+        string[] callCols = { "AN", "AQ", "AR", "AS" };
+        string[] putCols  = { "BH", "BK", "BL", "BM" };
+
+        for (int row = 10; row <= 174; row++)
+        {
+            // --- Call data ---
+            var callSymbol = Get(sheet, callCols[0], row);
+            if (!string.IsNullOrWhiteSpace(callSymbol))
+            {
+                string DerivMonth  = Get(sheet, callCols[1], row);
+                string PutOrCall   = Get(sheet, callCols[2], row);
+                string StrikePrice = Get(sheet, callCols[3], row);
+
+                string name = $"{DerivMonth}-{PutOrCall}-{StrikePrice}";
+                names[name] = callSymbol;
+            }
+            // --- Put data ---
+            var putSymbol = Get(sheet, putCols[0], row);
+            if (!string.IsNullOrWhiteSpace(putSymbol))
+            {
+                string DerivMonth  = Get(sheet, putCols[1], row);
+                string PutOrCall   = Get(sheet, putCols[2], row);
+                string StrikePrice = Get(sheet, putCols[3], row);
+                string name = $"{DerivMonth}-{PutOrCall}-{StrikePrice}";
+                names[name] = putSymbol;
+            }
+        }
+        return names;
+    }
+
     private static string Get(string sheet, string col, int row)
     {
         try
@@ -159,7 +195,7 @@ public static class OptionSheetReader
         }
         catch (Exception ex)
         {
-            AddinMain.Log($"[OptionSheetReader] ERROR: {ex.Message}");
+            AddinMain.Log($"[OptionSheetReader] ERROR at {sheet}!{col}{row}: {ex.Message}");
             return null;
         }
     }
