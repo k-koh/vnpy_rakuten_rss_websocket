@@ -12,7 +12,7 @@ public class RestApiServer
     private Thread _serverThread;
     private bool _running;
     private static readonly string LogFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "addin.log");
-    public static List<string> RegisteredSymbols { get; } = new List<string>();
+    public static HashSet<string> RegisteredSymbols { get; } = new HashSet<string>();
     public static Dictionary<string, OptionContract> OptionContracts { get; } = new Dictionary<string, OptionContract>();
     public static Dictionary<string, string> SymbolNames { get; } = new Dictionary<string, string>();
 
