@@ -76,7 +76,7 @@ public class AddinMain : IExcelAddIn
                         Log($"[AddinMain] Exception in Macro: {ex}");
                     }
                 });
-                Thread.Sleep(5000);
+                Thread.Sleep(2000);
             }
         }
         catch (Exception ex)

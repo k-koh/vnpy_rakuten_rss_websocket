@@ -6,7 +6,7 @@
 - Excel（楽天RSS アドイン）で日経225オプションのデータを取得
 - Excel XLL アドイン（C#、Excel-DNA）でセルを監視
 - WebSocket サーバーを内蔵してリアルタイム配信
-- vn.py または Python の WebSocket クライアントが受信
+- vn.py または Python の WebSocket クライアントが寿信
 
 # ExcelAddin-RakutenRSS-WebSocket
 
@@ -30,6 +30,10 @@ This project connects:
 - `WebSocketServer.cs` - Simple WebSocket server implementation
 - `JsonModels.cs` - Data models for JSON serialization
 - `Properties/AssemblyInfo.cs` - Assembly metadata
+
+## Build Tools
+- Microsoft Visual Studio Community 2026 (18.1.0)
+- Microsoft .NET Framework 4.8.09032
 
 ## Build
 1. Visual Studio → Class Library (.NET Framework 4.8)
