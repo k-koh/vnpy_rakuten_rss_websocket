@@ -145,6 +145,23 @@ public class RestApiServer
                 response = "{\"Code\":4002001,\"Message\":\"symbolname not found\"}";
             }
         }
+        /////////////////////////////////////////////////////
+        // ì˙åoïΩãœVIéwêîéÊìæAPI
+        /////////////////////////////////////////////////////
+        else if (path == "/rakutenapi/vi" && method == "GET")
+        {
+            try
+            {
+                double vi = OptionSheetReader.CalculateNikkeiVI();
+                var viResponse = new { VI = vi, Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") };
+                response = JsonConvert.SerializeObject(viResponse);
+            }
+            catch (Exception ex)
+            {
+                statusCode = 500;
+                response = $"{{\"error\":\"VI calculation failed\",\"message\":\"{ex.Message}\"}}";
+            }
+        }
         else
         {
             statusCode = 404;
