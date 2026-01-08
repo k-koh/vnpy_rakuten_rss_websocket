@@ -61,7 +61,7 @@ public class VICalculator
             // VI = sqrt(variance) * 100
             double vi = Math.Sqrt(variance30) * 100.0;
 
-            AddinMain.Log($"[VICalculator] T1={T1:F6}, T2={T2:F6}, σ1²={sigma1_squared:F6}, σ2²={sigma2_squared:F6}, VI={vi:F2}");
+            //AddinMain.Log($"[VICalculator] T1={T1:F6}, T2={T2:F6}, σ1²={sigma1_squared:F6}, σ2²={sigma2_squared:F6}, VI={vi:F2}");
 
             return vi;
         }

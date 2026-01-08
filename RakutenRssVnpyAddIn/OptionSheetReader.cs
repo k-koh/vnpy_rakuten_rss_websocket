@@ -247,16 +247,16 @@ public static class OptionSheetReader
                 ExpiryDate = VICalculator.ParseExpiryDate(Get(sheet, "AQ", 11), DateTime.Now.Year)
             };
 
-            AddinMain.Log($"[VI] Month1 Future: Price={month1Future.Price}, Expiry={month1Future.ExpiryDate:yyyy-MM-dd}");
-            AddinMain.Log($"[VI] Month2 Future: Price={month2Future.Price}, Expiry={month2Future.ExpiryDate:yyyy-MM-dd}");
+            //AddinMain.Log($"[VI] Month1 Future: Price={month1Future.Price}, Expiry={month1Future.ExpiryDate:yyyy-MM-dd}");
+            //AddinMain.Log($"[VI] Month2 Future: Price={month2Future.Price}, Expiry={month2Future.ExpiryDate:yyyy-MM-dd}");
 
             // Read month 1 options (rows 12-92)
             var month1Options = ReadOptionsForVI(sheet, 12, 92);
-            AddinMain.Log($"[VI] Month1 Options count: {month1Options.Count}");
+            //AddinMain.Log($"[VI] Month1 Options count: {month1Options.Count}");
             
             // Read month 2 options (rows 94-174)
             var month2Options = ReadOptionsForVI(sheet, 94, 174);
-            AddinMain.Log($"[VI] Month2 Options count: {month2Options.Count}");
+            //AddinMain.Log($"[VI] Month2 Options count: {month2Options.Count}");
 
             // Calculate VI
             double vi = VICalculator.CalculateVI(
@@ -267,7 +267,7 @@ public static class OptionSheetReader
                 DateTime.Now
             );
 
-            AddinMain.Log($"[VI] Calculated VI: {vi:F2}");
+            //AddinMain.Log($"[VI] Calculated VI: {vi:F2}");
             return vi;
         }
         catch (Exception ex)
