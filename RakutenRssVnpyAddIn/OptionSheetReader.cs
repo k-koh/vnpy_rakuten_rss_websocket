@@ -18,7 +18,7 @@ public static class OptionSheetReader
         string[] callCols = { "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF" };
         string[] putCols  = { "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO", "BP", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BX", "BY", "BZ" };
 
-        for (int row = 8; row <= 174; row++)
+        for (int row = 8; row <= 238; row++)
         {
             // --- Call data ---
             var callSymbol = Get(sheet, callCols[0], row);
@@ -117,7 +117,7 @@ public static class OptionSheetReader
         string[] callCols = { "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU" };
         string[] putCols = { "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO" };
 
-        for (int row = 8; row <= 174; row++)
+        for (int row = 8; row <= 238; row++)
         {
             // --- Call data ---
             var callSymbol = Get(sheet, callCols[0], row);
@@ -182,7 +182,7 @@ public static class OptionSheetReader
         string[] callCols = { "AN", "AQ", "AR", "AS" };
         string[] putCols  = { "BH", "BK", "BL", "BM" };
 
-        for (int row = 8; row <= 174; row++)
+        for (int row = 8; row <= 238; row++)
         {
             // --- Call data ---
             var callSymbol = Get(sheet, callCols[0], row);
@@ -251,11 +251,11 @@ public static class OptionSheetReader
             //AddinMain.Log($"[VI] Month2 Future: Price={month2Future.Price}, Expiry={month2Future.ExpiryDate:yyyy-MM-dd}");
 
             // Read month 1 options (rows 12-92)
-            var month1Options = ReadOptionsForVI(sheet, 12, 92);
+            var month1Options = ReadOptionsForVI(sheet, 12, 124);
             //AddinMain.Log($"[VI] Month1 Options count: {month1Options.Count}");
             
             // Read month 2 options (rows 94-174)
-            var month2Options = ReadOptionsForVI(sheet, 94, 174);
+            var month2Options = ReadOptionsForVI(sheet, 126, 238);
             //AddinMain.Log($"[VI] Month2 Options count: {month2Options.Count}");
 
             // Calculate VI
