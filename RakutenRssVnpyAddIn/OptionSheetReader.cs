@@ -9,16 +9,26 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 public static class OptionSheetReader
 {
+    // 設定 sheet layout (ATM ±20000, 500 step => 81 strikes per month)
+    // Row 8-9: NVI/VIX, Row 10-11: Month 1/2 Future
+    private const int FirstRow = 8;
+    private const int Month1StartRow = 12;
+    private const int Month1EndRow = 92;
+    private const int Month2StartRow = 94;
+    private const int Month2EndRow = 174;
+    private const int LastRow = Month2EndRow;
+
     public static List<OptionRow> ReadOptionRows()
     {
         List<OptionRow> list = new List<OptionRow>();
-        string sheet = "設定";
+        dynamic sheet = FindSettingsSheet();
+        if (sheet == null) return list;
         // Call data: AN~BF (columns 40~58), Put data: BH~BZ (columns 60~78)
         // We'll use Excel column letters for mapping
         string[] callCols = { "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD", "BE", "BF" };
         string[] putCols  = { "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO", "BP", "BQ", "BR", "BS", "BT", "BU", "BV", "BW", "BX", "BY", "BZ" };
 
-        for (int row = 8; row <= 238; row++)
+        for (int row = FirstRow; row <= LastRow; row++)
         {
             // --- Call data ---
             var callSymbol = Get(sheet, callCols[0], row);
@@ -113,11 +123,12 @@ public static class OptionSheetReader
     public static Dictionary<string, OptionContract> ReadOptionContracts()
     {
         Dictionary<string, OptionContract> contracts = new Dictionary<string, OptionContract>();
-        string sheet = "設定";
+        dynamic sheet = FindSettingsSheet();
+        if (sheet == null) return contracts;
         string[] callCols = { "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU" };
         string[] putCols = { "BH", "BI", "BJ", "BK", "BL", "BM", "BN", "BO" };
 
-        for (int row = 8; row <= 238; row++)
+        for (int row = FirstRow; row <= LastRow; row++)
         {
             // --- Call data ---
             var callSymbol = Get(sheet, callCols[0], row);
@@ -178,11 +189,12 @@ public static class OptionSheetReader
     public static Dictionary<string, string> ReadSymbolNames()
     {
         Dictionary<string, string> names = new Dictionary<string, string>();
-        string sheet = "設定";
+        dynamic sheet = FindSettingsSheet();
+        if (sheet == null) return names;
         string[] callCols = { "AN", "AQ", "AR", "AS" };
         string[] putCols  = { "BH", "BK", "BL", "BM" };
 
-        for (int row = 8; row <= 238; row++)
+        for (int row = FirstRow; row <= LastRow; row++)
         {
             // --- Call data ---
             var callSymbol = Get(sheet, callCols[0], row);
@@ -230,7 +242,8 @@ public static class OptionSheetReader
     {
         try
         {
-            string sheet = "設定";
+            dynamic sheet = FindSettingsSheet();
+            if (sheet == null) return 0;
             // Column mapping: AN=Symbol, AO=Name, AP=Unit, AQ=DerivMonth, AR=PutOrCall, AS=Strike, AV=Sell1, AX=Buy1, AZ=Current
 
             // Read underlying futures data
@@ -251,11 +264,11 @@ public static class OptionSheetReader
             //AddinMain.Log($"[VI] Month2 Future: Price={month2Future.Price}, Expiry={month2Future.ExpiryDate:yyyy-MM-dd}");
 
             // Read month 1 options (rows 12-92)
-            var month1Options = ReadOptionsForVI(sheet, 12, 124);
+            var month1Options = ReadOptionsForVI(sheet, Month1StartRow, Month1EndRow);
             //AddinMain.Log($"[VI] Month1 Options count: {month1Options.Count}");
             
             // Read month 2 options (rows 94-174)
-            var month2Options = ReadOptionsForVI(sheet, 126, 238);
+            var month2Options = ReadOptionsForVI(sheet, Month2StartRow, Month2EndRow);
             //AddinMain.Log($"[VI] Month2 Options count: {month2Options.Count}");
 
             // Calculate VI
@@ -280,7 +293,7 @@ public static class OptionSheetReader
     /// <summary>
     /// Read option data for VI calculation from specified row range
     /// </summary>
-    private static List<VICalculator.OptionData> ReadOptionsForVI(string sheet, int startRow, int endRow)
+    private static List<VICalculator.OptionData> ReadOptionsForVI(dynamic sheet, int startRow, int endRow)
     {
         var options = new List<VICalculator.OptionData>();
         // Call columns: AN=Symbol, AS=Strike, AV=Sell1, AX=Buy1, AR=PutOrCall
@@ -364,13 +377,56 @@ public static class OptionSheetReader
         return result;
     }
 
-    private static string Get(string sheet, string col, int row)
+    private const string SettingsSheetName = "設定";
+    private static bool _settingsSheetMissingLogged = false;
+
+    /// <summary>
+    /// Find the 設定 sheet: ActiveWorkbook first, then any open workbook.
+    /// Returns null when no workbook is open yet (e.g. right after AutoOpen) or none has the sheet.
+    /// </summary>
+    private static dynamic FindSettingsSheet()
+    {
+        dynamic app = ExcelDnaUtil.Application;
+        dynamic sheet = FindSheetIn(app.ActiveWorkbook);
+        if (sheet == null)
+        {
+            foreach (dynamic wb in app.Workbooks)
+            {
+                sheet = FindSheetIn(wb);
+                if (sheet != null) break;
+            }
+        }
+
+        if (sheet == null)
+        {
+            if (!_settingsSheetMissingLogged)
+            {
+                AddinMain.Log($"[OptionSheetReader] Waiting for a workbook with sheet '{SettingsSheetName}'.");
+                _settingsSheetMissingLogged = true;
+            }
+        }
+        else if (_settingsSheetMissingLogged)
+        {
+            AddinMain.Log($"[OptionSheetReader] Found sheet '{SettingsSheetName}' in {sheet.Parent.Name}.");
+            _settingsSheetMissingLogged = false;
+        }
+        return sheet;
+    }
+
+    private static dynamic FindSheetIn(dynamic wb)
+    {
+        if (wb == null) return null;
+        foreach (dynamic ws in wb.Worksheets)
+        {
+            if (ws.Name == SettingsSheetName) return ws;
+        }
+        return null;
+    }
+
+    private static string Get(dynamic ws, string col, int row)
     {
         try
         {
-            // dynamic を使って Excel.Application 型のキャストを不要に
-            dynamic app = ExcelDnaUtil.Application;
-            dynamic ws = app.ActiveWorkbook.Worksheets[sheet];
             dynamic r = ws.Range[$"{col}{row}"];
             object v = r.Value;
 
@@ -397,7 +453,7 @@ public static class OptionSheetReader
         }
         catch (Exception ex)
         {
-            AddinMain.Log($"[OptionSheetReader] ERROR at {sheet}!{col}{row}: {ex.Message}");
+            AddinMain.Log($"[OptionSheetReader] ERROR at {SettingsSheetName}!{col}{row}: {ex.Message}");
             return null;
         }
     }
