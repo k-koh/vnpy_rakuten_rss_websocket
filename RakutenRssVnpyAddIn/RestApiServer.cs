@@ -112,6 +112,40 @@ public class RestApiServer
             }
         }
         /////////////////////////////////////////////////////
+        // シンボルWebsocket受信リスト解除API
+        /////////////////////////////////////////////////////
+        else if (path == "/rakutenapi/unregister" && method == "PUT")
+        {
+            try
+            {
+                using (var reader = new StreamReader(context.Request.InputStream, context.Request.ContentEncoding))
+                {
+                    var body = reader.ReadToEnd();
+                    var data = JsonConvert.DeserializeObject<RegisterRequest>(body);
+                    if (data?.Symbols != null)
+                    {
+                        foreach (var s in data.Symbols)
+                        {
+                            RegisteredSymbols.Remove(s.Symbol);
+                            Log($"[RestApiServer] {method} {path} {s.Symbol}");
+                        }
+                        var registListJson = JsonConvert.SerializeObject(new { RegistList = RegisteredSymbols });
+                        response = registListJson;
+                    }
+                    else
+                    {
+                        statusCode = 400;
+                        response = "{\"error\":\"invalid symbols\"}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                statusCode = 400;
+                response = $"{{\"error\":\"exception\",\"message\":\"{ex.Message}\"}}";
+            }
+        }
+        /////////////////////////////////////////////////////
         // オプション銘柄情報取得API
         /////////////////////////////////////////////////////
         else if (path.StartsWith("/rakutenapi/symbol/") && method == "GET")
