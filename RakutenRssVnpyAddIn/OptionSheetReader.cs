@@ -377,7 +377,7 @@ public static class OptionSheetReader
         return result;
     }
 
-    private const string SettingsSheetName = "設定";
+    private const string SettingsSheetName = "設定_vnpy_rakuten_rss_option";
     private static bool _settingsSheetMissingLogged = false;
 
     /// <summary>
