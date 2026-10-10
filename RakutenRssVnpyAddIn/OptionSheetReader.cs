@@ -9,13 +9,13 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 public static class OptionSheetReader
 {
-    // 設定 sheet layout (ATM ±20000, 500 step => 81 strikes per month)
+    // 設定 sheet layout (ATM ±22000, 500 step => 89 strikes per month)
     // Row 8-9: NVI/VIX, Row 10-11: Month 1/2 Future
     private const int FirstRow = 8;
     private const int Month1StartRow = 12;
-    private const int Month1EndRow = 92;
-    private const int Month2StartRow = 94;
-    private const int Month2EndRow = 174;
+    private const int Month1EndRow = 100;
+    private const int Month2StartRow = 102;
+    private const int Month2EndRow = 190;
     private const int LastRow = Month2EndRow;
 
     public static List<OptionRow> ReadOptionRows()
@@ -236,7 +236,7 @@ public static class OptionSheetReader
     /// <summary>
     /// Calculate Nikkei VI (Volatility Index) from option data
     /// Row 10: Month 1 Future, Row 11: Month 2 Future
-    /// Rows 12-92: Month 1 Options, Rows 94-174: Month 2 Options
+    /// Rows 12-100: Month 1 Options, Rows 102-190: Month 2 Options
     /// </summary>
     public static double CalculateNikkeiVI()
     {
@@ -263,11 +263,11 @@ public static class OptionSheetReader
             //AddinMain.Log($"[VI] Month1 Future: Price={month1Future.Price}, Expiry={month1Future.ExpiryDate:yyyy-MM-dd}");
             //AddinMain.Log($"[VI] Month2 Future: Price={month2Future.Price}, Expiry={month2Future.ExpiryDate:yyyy-MM-dd}");
 
-            // Read month 1 options (rows 12-92)
+            // Read month 1 options (rows 12-100)
             var month1Options = ReadOptionsForVI(sheet, Month1StartRow, Month1EndRow);
             //AddinMain.Log($"[VI] Month1 Options count: {month1Options.Count}");
             
-            // Read month 2 options (rows 94-174)
+            // Read month 2 options (rows 102-190)
             var month2Options = ReadOptionsForVI(sheet, Month2StartRow, Month2EndRow);
             //AddinMain.Log($"[VI] Month2 Options count: {month2Options.Count}");
 
